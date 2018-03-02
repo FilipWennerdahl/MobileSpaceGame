@@ -8,9 +8,10 @@ public class CameraScript : MonoBehaviour {
 
     private GameObject ship;
     private Vector3 newShipPosition;
-    private bool movingTowardsShip = false;
+    private bool movingTowardsNewShipLocation = false;
     private float moveTowardsSpeed = 15f;
     private RespawnManager respawnManager;
+    private bool shipReachedNewLocation = true;
 
 	void Start () {
 
@@ -21,8 +22,10 @@ public class CameraScript : MonoBehaviour {
 	
 	void LateUpdate () {
 
-        if (movingTowardsShip) {
+        if (movingTowardsNewShipLocation) {
             MoveTowardsShip();
+        } else if(!shipReachedNewLocation){
+            CheckShipPositionDuringRespawn();
         } else {
             FollowShipVertically();
         }
@@ -33,11 +36,15 @@ public class CameraScript : MonoBehaviour {
         newShipPosition = newPosition;
         newShipPosition.y += verticalOffset;
         newShipPosition.z = transform.position.z;
-        movingTowardsShip = true;
+        movingTowardsNewShipLocation = true;
     }
 
-    public float UnitToPixels(float units) {
-        return (Camera.main.pixelHeight / (2 * Camera.main.orthographicSize)) * units;
+    private void CheckShipPositionDuringRespawn() {
+
+        if (ship.transform.position.y + verticalOffset > newShipPosition.y) {
+            shipReachedNewLocation = true;
+        }
+
     }
 
     private void MoveTowardsShip() {
@@ -45,14 +52,14 @@ public class CameraScript : MonoBehaviour {
         if(!ship.activeSelf && Vector2.Distance(transform.position, newShipPosition) > 0) {
             transform.position = Vector3.MoveTowards(transform.position, newShipPosition, moveTowardsSpeed * Time.unscaledDeltaTime); 
         } else {
-            movingTowardsShip = false;
-
+            movingTowardsNewShipLocation = false;
+            shipReachedNewLocation = false;
             respawnManager.RespawnShip();
         }
 
     }
 
-    private void FollowShipVertically() {
+    public void FollowShipVertically() {
         Vector3 newPosition = transform.position;
 
         newPosition.y = ship.transform.position.y + verticalOffset;

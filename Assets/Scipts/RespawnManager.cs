@@ -39,6 +39,7 @@ public class RespawnManager : MonoBehaviour {
             finalRangeGUI.text = "Rached a final range of " + (int)ship.GetCurrentPosition();
             gameOverSplash.SetActive(true);
         } else {
+            ship.gameObject.transform.position = new Vector2(ship.gameObject.transform.position.x, Camera.main.transform.position.y - Helper.PixelToUnit(Screen.height) - transform.localScale.y);  
             ship.gameObject.SetActive(true);
         }
         

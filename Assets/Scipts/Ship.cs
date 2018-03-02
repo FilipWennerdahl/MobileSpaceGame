@@ -26,12 +26,13 @@ public class Ship : MonoBehaviour {
         verticalSpeed = verticalStartSpeed;
         originalLengthOfSlowndownField = slowDownField.points[0].y;
         startPosition = gameObject.transform.position.y;
-        shipPixelWidth = Camera.main.GetComponent<CameraScript>().UnitToPixels(gameObject.GetComponent<MeshRenderer>().bounds.size.x);
+        shipPixelWidth = Helper.UnitToPixel(gameObject.GetComponent<MeshRenderer>().bounds.size.x);
     }
-	
-	void Update () {
+    void FixedUpdate() {
+
+    }
+    void Update () {
         MoveHorizontaly();
-        IncreaseSpeed();
         MoveVertically();
         IncreaseSpeed();
         HandleEnergy();

@@ -327,6 +327,7 @@
     <Compile Include="Assets\Scipts\CameraScript.cs" />
     <Compile Include="Assets\Scipts\ControllingCameraAspectScript.cs" />
     <Compile Include="Assets\Scipts\GUI.cs" />
+    <Compile Include="Assets\Scipts\Helper.cs" />
     <Compile Include="Assets\Scipts\LevelRandomizer.cs" />
     <Compile Include="Assets\Scipts\MainMenu.cs" />
     <Compile Include="Assets\Scipts\RespawnManager.cs" />
