@@ -90,9 +90,7 @@ public class Ship : MonoBehaviour {
     }
 
     private void MoveVertically() {
-        Vector3 newPos = transform.position;
-        newPos.y += verticalSpeed * Time.deltaTime;
-        transform.position = newPos;
+        transform.position = Vector2.MoveTowards(transform.position, new Vector2(transform.position.x, transform.position.y + transform.localScale.y), verticalSpeed * Time.deltaTime);
     }
 
     private void MoveHorizontaly() {
@@ -109,8 +107,7 @@ public class Ship : MonoBehaviour {
         if (horizontalPos - (shipPixelWidth / 2) > 0) {
 
             if (Input.GetKey(KeyCode.A)) {
-                newPos.x -= horizontalSpeed * Time.deltaTime;
-                transform.position = newPos;
+                transform.position = Vector2.MoveTowards(transform.position, new Vector2(transform.position.x - transform.localScale.x, transform.position.y), horizontalSpeed * Time.deltaTime);
             }
 
         }
@@ -118,8 +115,7 @@ public class Ship : MonoBehaviour {
         if (horizontalPos + (shipPixelWidth / 2) < Screen.width) {
 
             if (Input.GetKey(KeyCode.D)) {
-                newPos.x += horizontalSpeed * Time.deltaTime;
-                transform.position = newPos;
+                transform.position = Vector2.MoveTowards(transform.position, new Vector2(transform.position.x + transform.localScale.x, transform.position.y), horizontalSpeed * Time.deltaTime);
             }
 
         }
