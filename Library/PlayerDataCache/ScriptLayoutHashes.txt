@@ -1,4 +1,4 @@
-WebGL
+Android
 SceneListBegin?
 Assets/MainMenu.unity
 Assets/UnlimitedLevel.unity

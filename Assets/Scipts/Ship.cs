@@ -21,6 +21,7 @@ public class Ship : MonoBehaviour {
     private CameraScript mainCamera;
     private bool reaccelerating = false;
     private float verticalSpeedAccelerationGoal;
+    private bool touchAvailable = false;
 
     void Start () {
         timeManager = GameObject.FindGameObjectWithTag("SystemManager").GetComponent<TimeManager>();
@@ -31,6 +32,9 @@ public class Ship : MonoBehaviour {
         originalLengthOfSlowndownField = slowDownField.points[0].y;
         startPosition = gameObject.transform.position.y;
         shipPixelWidth = Helper.UnitToPixel(gameObject.GetComponent<MeshRenderer>().bounds.size.x);
+        if(SystemInfo.deviceType == DeviceType.Handheld) {
+            touchAvailable = true;
+        }
     }
     void FixedUpdate() {
 
@@ -44,11 +48,11 @@ public class Ship : MonoBehaviour {
     }
 
     public void IncreaseHorizontalSpeed() {
-        horizontalSpeed = Mathf.Clamp(horizontalSpeed + (horizontalSlowdownSpeedChangeIncrament * Time.unscaledDeltaTime), 8, MaxHorizontalSpeed());
+        horizontalSpeed = Mathf.Clamp(horizontalSpeed + (horizontalSlowdownSpeedChangeIncrament * Time.unscaledDeltaTime), originalHorizontalSpeed, MaxHorizontalSpeed());
     }
 
     public void DefaultHorizontalSpeed() {
-        horizontalSpeed = Mathf.Clamp(horizontalSpeed - (horizontalSlowdownSpeedChangeIncrament * Time.unscaledDeltaTime), 8, MaxHorizontalSpeed());
+        horizontalSpeed = Mathf.Clamp(horizontalSpeed - (horizontalSlowdownSpeedChangeIncrament * Time.unscaledDeltaTime), originalHorizontalSpeed, MaxHorizontalSpeed());
     }
 
     public int CurrentEnergyLevel() {
@@ -114,20 +118,59 @@ public class Ship : MonoBehaviour {
         float horizontalPos = Camera.main.WorldToScreenPoint(transform.position).x;
         Vector3 newPos = transform.position;
 
-        if (horizontalPos - (shipPixelWidth / 2) > 0) {
+        if (mainCamera.HaveShipEnteredScreen() && horizontalPos - (shipPixelWidth / 2) > 0) {
 
-            if (mainCamera.HaveShipEnteredScreen() && Input.GetAxisRaw("Horizontal") < 0) {
-                transform.position = Vector2.MoveTowards(transform.position, new Vector2(transform.position.x - transform.localScale.x, transform.position.y), horizontalSpeed * Time.deltaTime);
+            if(touchAvailable) {
+                MoveLeftWithTouch();
+            } else {
+                MoveLeftWithInput();
+              
             }
 
         }
 
-        if (horizontalPos + (shipPixelWidth / 2) < Screen.width) {
+        if (mainCamera.HaveShipEnteredScreen() && horizontalPos + (shipPixelWidth / 2) < Screen.width) {
 
-            if (mainCamera.HaveShipEnteredScreen() && Input.GetAxisRaw("Horizontal") > 0) {
-                transform.position = Vector2.MoveTowards(transform.position, new Vector2(transform.position.x + transform.localScale.x, transform.position.y), horizontalSpeed * Time.deltaTime);
+            if (touchAvailable) {
+                MoveRightWithTouch();
+            } else {
+                MoveRightWithInput();
+
             }
+        }
 
+    }
+
+    private void MoveLeftWithInput() {
+
+        if (mainCamera.HaveShipEnteredScreen() && Input.GetAxisRaw("Horizontal") < 0) {
+            transform.position = Vector2.MoveTowards(transform.position, new Vector2(transform.position.x - transform.localScale.x, transform.position.y), horizontalSpeed * Time.deltaTime);
+        }
+
+    }
+
+    private void MoveRightWithInput() {
+
+        if (mainCamera.HaveShipEnteredScreen() && Input.GetAxisRaw("Horizontal") > 0) {
+            transform.position = Vector2.MoveTowards(transform.position, new Vector2(transform.position.x + transform.localScale.x, transform.position.y), horizontalSpeed * Time.deltaTime);
+        }
+
+    }
+
+
+
+    private void MoveLeftWithTouch() {
+
+        if(Input.touchCount > 0 && Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position).x < transform.position.x) {
+            transform.position = Vector2.MoveTowards(transform.position, new Vector2(Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position).x, transform.position.y), horizontalSpeed * Time.deltaTime);
+        }
+
+    }
+
+    private void MoveRightWithTouch() {
+
+        if (Input.touchCount > 0 && Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position).x > transform.position.x) {
+            transform.position = Vector2.MoveTowards(transform.position, new Vector2(Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position).x, transform.position.y), horizontalSpeed * Time.deltaTime);
         }
 
     }
