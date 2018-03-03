@@ -18,9 +18,13 @@ public class Ship : MonoBehaviour {
     private float originalLengthOfSlowndownField;
     private float startPosition;
     private float shipPixelWidth;
+    private CameraScript mainCamera;
+    private bool reaccelerating = false;
+    private float verticalSpeedAccelerationGoal;
 
     void Start () {
         timeManager = GameObject.FindGameObjectWithTag("SystemManager").GetComponent<TimeManager>();
+        mainCamera = Camera.main.GetComponent<CameraScript>();
         slowDownField = gameObject.GetComponentInChildren<PolygonCollider2D>();
         originalHorizontalSpeed = horizontalSpeed;
         verticalSpeed = verticalStartSpeed;
@@ -61,13 +65,18 @@ public class Ship : MonoBehaviour {
 
     public void NewShipPosition(Vector2 position) {
         gameObject.transform.position = position;
-
         ResetValues();
+    }
+
+    public void Reaccelerate() {
+        verticalSpeedAccelerationGoal = verticalSpeed;
+        verticalSpeed = verticalStartSpeed;
+        reaccelerating = true;
     }
 
     private void ResetValues() {
         horizontalSpeed = originalHorizontalSpeed;
-        verticalSpeed = verticalSpeed * 0.9f;
+        //verticalSpeed = verticalSpeed * 0.9f;
         energy = 100f;
 
         if (verticalSpeed < verticalStartSpeed) {
@@ -91,7 +100,7 @@ public class Ship : MonoBehaviour {
     }
 
     private void MoveVertically() {
-        transform.position = Vector2.MoveTowards(transform.position, new Vector2(transform.position.x, transform.position.y + transform.localScale.y), verticalSpeed * Time.deltaTime);
+        transform.position = Vector2.MoveTowards(transform.position, new Vector2(transform.position.x, transform.position.y + transform.localScale.y), verticalSpeed * Time.deltaTime);      
     }
 
     private void MoveHorizontaly() {
@@ -107,7 +116,7 @@ public class Ship : MonoBehaviour {
 
         if (horizontalPos - (shipPixelWidth / 2) > 0) {
 
-            if (Input.GetKey(KeyCode.A)) {
+            if (mainCamera.HaveShipEnteredScreen() && Input.GetAxisRaw("Horizontal") < 0) {
                 transform.position = Vector2.MoveTowards(transform.position, new Vector2(transform.position.x - transform.localScale.x, transform.position.y), horizontalSpeed * Time.deltaTime);
             }
 
@@ -115,7 +124,7 @@ public class Ship : MonoBehaviour {
 
         if (horizontalPos + (shipPixelWidth / 2) < Screen.width) {
 
-            if (Input.GetKey(KeyCode.D)) {
+            if (mainCamera.HaveShipEnteredScreen() && Input.GetAxisRaw("Horizontal") > 0) {
                 transform.position = Vector2.MoveTowards(transform.position, new Vector2(transform.position.x + transform.localScale.x, transform.position.y), horizontalSpeed * Time.deltaTime);
             }
 
@@ -124,7 +133,17 @@ public class Ship : MonoBehaviour {
     }
 
     private void IncreaseSpeed() {
-        verticalSpeed += verticalSpeedIncreaseIncrement * Time.deltaTime;
+
+        if(verticalSpeed >= verticalSpeedAccelerationGoal) {
+            reaccelerating = false;
+        }
+
+        if(reaccelerating) {
+            verticalSpeed += (verticalSpeedIncreaseIncrement * (GetCurrentPosition() * 0.08f)) * Time.deltaTime;
+        } else {
+            verticalSpeed += verticalSpeedIncreaseIncrement * Time.deltaTime;
+        }
+        
     }
 
     private void AdjustSlowdownField() {

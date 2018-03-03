@@ -32,6 +32,10 @@ public class CameraScript : MonoBehaviour {
 
     }
 
+    public bool HaveShipEnteredScreen() {
+        return shipReachedNewLocation;
+    }
+
     public void StartMovingTowardsShip(Vector3 newPosition) {
         newShipPosition = newPosition;
         newShipPosition.y += verticalOffset;
@@ -59,7 +63,7 @@ public class CameraScript : MonoBehaviour {
 
     }
 
-    public void FollowShipVertically() {
+    private void FollowShipVertically() {
         Vector3 newPosition = transform.position;
 
         newPosition.y = ship.transform.position.y + verticalOffset;
