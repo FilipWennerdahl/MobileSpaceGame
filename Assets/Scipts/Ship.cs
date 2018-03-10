@@ -115,10 +115,7 @@ public class Ship : MonoBehaviour {
             DefaultHorizontalSpeed();
         }
 
-        float horizontalPos = Camera.main.WorldToScreenPoint(transform.position).x;
-        Vector3 newPos = transform.position;
-
-        if (mainCamera.HaveShipEnteredScreen() && horizontalPos - (shipPixelWidth / 2) > 0) {
+        if (mainCamera.ShipAtCorrectYPosition() && Camera.main.WorldToScreenPoint(transform.position).x - (shipPixelWidth / 2) > 0.1) {
 
             if(touchAvailable) {
                 MoveLeftWithTouch();
@@ -127,9 +124,14 @@ public class Ship : MonoBehaviour {
               
             }
 
+            if(Camera.main.WorldToScreenPoint(transform.position).x - (shipPixelWidth / 2) < 0) {
+                float leftBoundaryAligned = -(Helper.PixelToUnit(Screen.width) / 2) + (gameObject.GetComponent<MeshRenderer>().bounds.size.x / 2);
+                transform.position = new Vector2(leftBoundaryAligned, transform.position.y);
+            }
+
         }
 
-        if (mainCamera.HaveShipEnteredScreen() && horizontalPos + (shipPixelWidth / 2) < Screen.width) {
+        if (mainCamera.ShipAtCorrectYPosition() && Camera.main.WorldToScreenPoint(transform.position).x + (shipPixelWidth / 2) < Screen.width - 0.1) {
 
             if (touchAvailable) {
                 MoveRightWithTouch();
@@ -137,13 +139,19 @@ public class Ship : MonoBehaviour {
                 MoveRightWithInput();
 
             }
+
+            if (Camera.main.WorldToScreenPoint(transform.position).x + (shipPixelWidth / 2) > Screen.width) {
+                float rightBoundaryAligned = (Helper.PixelToUnit(Screen.width) / 2) - (gameObject.GetComponent<MeshRenderer>().bounds.size.x / 2);
+                transform.position = new Vector2(rightBoundaryAligned, transform.position.y);
+            }
+
         }
 
     }
 
     private void MoveLeftWithInput() {
 
-        if (mainCamera.HaveShipEnteredScreen() && Input.GetAxisRaw("Horizontal") < 0) {
+        if (Input.GetAxisRaw("Horizontal") < 0) {
             transform.position = Vector2.MoveTowards(transform.position, new Vector2(transform.position.x - transform.localScale.x, transform.position.y), horizontalSpeed * Time.deltaTime);
         }
 
@@ -151,7 +159,7 @@ public class Ship : MonoBehaviour {
 
     private void MoveRightWithInput() {
 
-        if (mainCamera.HaveShipEnteredScreen() && Input.GetAxisRaw("Horizontal") > 0) {
+        if (Input.GetAxisRaw("Horizontal") > 0) {
             transform.position = Vector2.MoveTowards(transform.position, new Vector2(transform.position.x + transform.localScale.x, transform.position.y), horizontalSpeed * Time.deltaTime);
         }
 

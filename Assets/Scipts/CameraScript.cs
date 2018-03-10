@@ -32,7 +32,7 @@ public class CameraScript : MonoBehaviour {
 
     }
 
-    public bool HaveShipEnteredScreen() {
+    public bool ShipAtCorrectYPosition() {
         return shipReachedNewLocation;
     }
 
